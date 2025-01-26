@@ -14,31 +14,35 @@ cat "$CTF_PATH/extra/hhvm.conf" | sed "s|CTFPATH|$CTF_PATH/|g" | tee /etc/hhvm/s
 chown -R www-data:www-data /var/www/*
 rm /etc/nginx/sites-enabled/*
 
-if ${SSL_SELF_SIGNED:=true}; then
-  echo "Generating self-signed certificate..."
-  __country=${SSL_COUNTRY:-"UK"}
-  __city=${SSL_CITY:-"London"}
-  __url=${CTF_URL:-"example.com"}
-  __email=${SSL_EMAIL:-"dev@$__url"}
+#if ${SSL_SELF_SIGNED:=true}; then
+#  echo "Generating self-signed certificate..."
+#  __country=${SSL_COUNTRY:-"UK"}
+#  __city=${SSL_CITY:-"London"}
+#  __url=${CTF_URL:-"example.com"}
+#  __email=${SSL_EMAIL:-"dev@$__url"}
 
   # Generating self signed cert
-  mkdir -p /etc/nginx/certs/
-  cd /etc/nginx/certs/
-  openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
-  openssl rsa -passin pass:x -in server.pass.key -out server.key
-  rm server.pass.key
-  openssl req -new -key server.key -out server.csr \
-    -subj "/C=$__country/ST=NRW/L=$__city/O=My Inc/OU=DevOps/CN=www.$__url/emailAddress=$__email"
-  openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
-  openssl dhparam -out dhparam.pem 2048
-  cd - > /dev/null # restore directory
+#  mkdir -p /etc/nginx/certs/
+#  cd /etc/nginx/certs/
+#  openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
+#  openssl rsa -passin pass:x -in server.pass.key -out server.key
+#  rm server.pass.key
+#  openssl req -new -key server.key -out server.csr \
+#    -subj "/C=$__country/ST=NRW/L=$__city/O=My Inc/OU=DevOps/CN=www.$__url/emailAddress=$__email"
+#  openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+#  openssl dhparam -out dhparam.pem 2048
+#  cd - > /dev/null # restore directory
 
-  cat "/etc/nginx/sites-available/fbctf_ssl.tmpl.conf" | sed "s|CTFPATH|$CTF_PATH/src|g" | tee /etc/nginx/sites-available/fbctf-ssl.conf > /dev/null
-  ln -s /etc/nginx/sites-available/fbctf-ssl.conf /etc/nginx/sites-enabled/fbctf-ssl.conf
-else
-  ln -s /etc/nginx/sites-available/fbctf.conf /etc/nginx/sites-enabled/fbctf.conf
-  sed -i -r -e '/private static bool \$s_secure/ {s/true/false/}' $CTF_PATH/src/SessionUtils.php
-fi
+#  cat "/etc/nginx/sites-available/fbctf_ssl.tmpl.conf" | sed "s|CTFPATH|$CTF_PATH/src|g" | tee /etc/nginx/sites-available/fbctf-ssl.conf > /dev/null
+#  ln -s /etc/nginx/sites-available/fbctf-ssl.conf /etc/nginx/sites-enabled/fbctf-ssl.conf
+#else
+#  ln -s /etc/nginx/sites-available/fbctf.conf /etc/nginx/sites-enabled/fbctf.conf
+#  sed -i -r -e '/private static bool \$s_secure/ {s/true/false/}' $CTF_PATH/src/SessionUtils.php
+#fi
+
+## Config NGINX
+ln -s /etc/nginx/sites-available/fbctf.conf /etc/nginx/sites-enabled/fbctf.conf
+sed -i -r -e '/private static bool \$s_secure/ {s/true/false/}' $CTF_PATH/src/SessionUtils.php
 
 # Forward request and error logs to docker log collector
 ln -sf /dev/stdout /var/log/nginx/access.log \
