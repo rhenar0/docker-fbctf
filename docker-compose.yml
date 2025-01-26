@@ -11,7 +11,7 @@ memcached:
   image: memcached
 fbctf:
   restart: always
-  image: alexgaspar/fbctf
+  image: local/cncctf
   links:
     - memcached:memcached
     - mysql:mysql
@@ -24,5 +24,5 @@ fbctf:
     - MEMCACHED_PORT=11211
     - SSL_SELF_SIGNED=true
   ports:
-    - "80:80"
-    - "443:443"
+    - "80:8080"
+    - "443:80443"
